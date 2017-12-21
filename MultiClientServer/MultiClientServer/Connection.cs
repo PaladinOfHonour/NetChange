@@ -25,7 +25,7 @@ namespace MultiClientServer
             // The server can't see which port we're a client of, we need to signal this seperately
             Write.WriteLine("Port: " + Program.port);
 
-            // Start het reader-loopje
+            // Start the reader loop
             new Thread(ReaderThread).Start();
         }
 
