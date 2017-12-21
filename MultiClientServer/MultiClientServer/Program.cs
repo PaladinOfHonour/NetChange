@@ -8,11 +8,14 @@ namespace MultiClientServer
     class Program
     {
         static public int port;
+        static public object myLock;
 
         static public Dictionary<int, Connection> routingTable = new Dictionary<int, Connection>();
 
         static void Main(string[] args)
         {
+            myLock = new object();
+
             port = int.Parse(args[0]);
             new Server(port);
 
@@ -20,10 +23,13 @@ namespace MultiClientServer
             for (int i = 1; i < args.Length; i++)
             {
                 var p = int.Parse(args[i]);
-                if (!routingTable.ContainsKey(p)) routingTable.Add(p, new Connection(p));
+                lock (myLock)
+                {
+                    if (!routingTable.ContainsKey(p)) routingTable.Add(p, new Connection(p));
+                }
             }
 
-            
+
             while (true)
             {
                 string input = Console.ReadLine();
@@ -42,11 +48,11 @@ namespace MultiClientServer
                 {
                     // Send a message
                     string[] parts = input.Split(new char[] { ' ' }, 2);
-                    int port = int.Parse(parts[0]);
-                    if (!routingTable.ContainsKey(port))
+                    int clientPort = int.Parse(parts[0]);
+                    if (!routingTable.ContainsKey(clientPort))
                         Console.WriteLine("This connection doesn't exist yet!");
                     else
-                        routingTable[port].Write.WriteLine(port + ": " + parts[1]);
+                        routingTable[clientPort].Write.WriteLine(port + ": " + parts[1]);
                 }
             }
             

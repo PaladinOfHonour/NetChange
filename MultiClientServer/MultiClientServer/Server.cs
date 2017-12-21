@@ -40,8 +40,18 @@ namespace MultiClientServer
 
                 Console.WriteLine("Client sets up connection: " + clientPort);
 
-                // Put the new connection in the connectionlist
-                if(!Program.routingTable.ContainsKey(clientPort)) Program.routingTable.Add(clientPort, new Connection(clientIn, clientOut));
+                if (Program.routingTable.Any())
+                {
+                    bool var = !Program.routingTable.ContainsKey(clientPort);
+                    Console.WriteLine("  the key to add: " + clientPort + " already added? : " + var);
+                }
+                else Console.WriteLine("FAILURE");
+
+                lock (Program.myLock)
+                {
+                    // Put the new connection in the connectionlist
+                    if (!Program.routingTable.ContainsKey(clientPort)) Program.routingTable.Add(clientPort, new Connection(clientIn, clientOut));
+                }
             }
         }
     }

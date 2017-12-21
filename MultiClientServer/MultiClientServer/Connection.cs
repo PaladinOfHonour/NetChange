@@ -14,7 +14,7 @@ namespace MultiClientServer
         public StreamReader Read;
         public StreamWriter Write;
 
-        // Connection has 2 constructors: this constructor gets ysed when we become a CLIENT to another SERVER
+        // Connection has 2 constructors: this constructor gets used when we become a CLIENT to another SERVER
         public Connection(int port)
         {
             TcpClient client = new TcpClient("localhost", port);
