@@ -13,12 +13,17 @@ namespace MultiClientServer
     {
         public Server(int port)
         {
-            // Luister op de opgegeven poort naar verbindingen
+            // Listen to connections on the given port
             TcpListener server = new TcpListener(IPAddress.Any, port);
             server.Start();
 
-            // Start een aparte thread op die verbindingen aanneemt
+            // Set the window title to the port id of the server
+            Console.Title = port.ToString();
+
+            // Start a seperate thread that accepts connections
             new Thread(() => AcceptLoop(server)).Start();
+
+
         }
 
         private void AcceptLoop(TcpListener handle)
@@ -30,12 +35,12 @@ namespace MultiClientServer
                 StreamWriter clientOut = new StreamWriter(client.GetStream());
                 clientOut.AutoFlush = true;
 
-                // De server weet niet wat de poort is van de client die verbinding maakt, de client geeft dus als onderdeel van het protocol als eerst een bericht met zijn poort
+                // The server doesn't know the port of the connection client, hence the client first sends a message with his own port as part of the protocol
                 int clientPort = int.Parse(clientIn.ReadLine().Split()[1]);
 
                 Console.WriteLine("Client sets up connection: " + clientPort);
 
-                // Zet de nieuwe verbinding in de verbindingslijst
+                // Put the new connection in the connectionlist
                 if(!Program.routingTable.ContainsKey(clientPort)) Program.routingTable.Add(clientPort, new Connection(clientIn, clientOut));
             }
         }

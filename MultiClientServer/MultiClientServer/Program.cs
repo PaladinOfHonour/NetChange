@@ -27,26 +27,26 @@ namespace MultiClientServer
             while (true)
             {
                 string input = Console.ReadLine();
-                if (input.StartsWith("verbind"))
+                if (input.StartsWith("connect"))
                 {
                     int clientPort = int.Parse(input.Split()[1]);
                     if (routingTable.ContainsKey(clientPort))
-                        Console.WriteLine("Hier is al verbinding naar!");
+                        Console.WriteLine("This connection already exists!");
                     else
                     {
-                        // Leg verbinding aan (als client)
+                        // Establish the connction (as client)
                         routingTable.Add(clientPort, new Connection(clientPort));
                     }
                 }
                 else
                 {
-                    // Stuur berichtje
-                    string[] delen = input.Split(new char[] { ' ' }, 2);
-                    int poort = int.Parse(delen[0]);
-                    if (!routingTable.ContainsKey(poort))
-                        Console.WriteLine("Hier is nog geen verbinding naar!");
+                    // Send a message
+                    string[] parts = input.Split(new char[] { ' ' }, 2);
+                    int port = int.Parse(parts[0]);
+                    if (!routingTable.ContainsKey(port))
+                        Console.WriteLine("This connection doesn't exist yet!");
                     else
-                        routingTable[poort].Write.WriteLine(port + ": " + delen[1]);
+                        routingTable[port].Write.WriteLine(port + ": " + parts[1]);
                 }
             }
             

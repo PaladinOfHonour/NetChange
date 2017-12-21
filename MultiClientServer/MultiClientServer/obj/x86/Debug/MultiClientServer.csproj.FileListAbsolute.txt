@@ -12,3 +12,9 @@ E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientS
 E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.csproj.CoreCompileInputs.cache
 E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.exe
 E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.pdb
+E:\Repos\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.csprojResolveAssemblyReference.cache
+E:\Repos\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.csproj.CoreCompileInputs.cache
+E:\Repos\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.pdb
+E:\Repos\NetChange_P02\MultiClientServer\MultiClientServer\bin\Debug\MultiClientServer.exe
+E:\Repos\NetChange_P02\MultiClientServer\MultiClientServer\bin\Debug\MultiClientServer.pdb
+E:\Repos\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.exe

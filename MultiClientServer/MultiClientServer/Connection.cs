@@ -14,7 +14,7 @@ namespace MultiClientServer
         public StreamReader Read;
         public StreamWriter Write;
 
-        // Connection heeft 2 constructoren: deze constructor wordt gebruikt als wij CLIENT worden bij een andere SERVER
+        // Connection has 2 constructors: this constructor gets ysed when we become a CLIENT to another SERVER
         public Connection(int port)
         {
             TcpClient client = new TcpClient("localhost", port);
@@ -22,25 +22,25 @@ namespace MultiClientServer
             Write = new StreamWriter(client.GetStream());
             Write.AutoFlush = true;
 
-            // De server kan niet zien van welke poort wij client zijn, dit moeten we apart laten weten
+            // The server can't see which port we're a client of, we need to signal this seperately
             Write.WriteLine("Port: " + Program.port);
 
             // Start het reader-loopje
             new Thread(ReaderThread).Start();
         }
 
-        // Deze constructor wordt gebruikt als wij SERVER zijn en een CLIENT maakt met ons verbinding
+        // This constructor gets used when we're the SERVER and a CLIENT establishes a connection with us
         public Connection(StreamReader read, StreamWriter write)
         {
             Read = read; Write = write;
 
-            // Start het reader-loopje
+            // Start the reader loop
             new Thread(ReaderThread).Start();
         }
 
-        // LET OP: Nadat er verbinding is gelegd, kun je vergeten wie er client/server is (en dat kun je aan het Connection-object dus ook niet zien!)
+        // WATCH OUT: After connection has been established, one can forget the client/server (you won't be able to retrive this from the connection-object either!)
 
-        // Deze loop leest wat er binnenkomt en print dit
+        // This loop reads incoming messages and prints them
         public void ReaderThread()
         {
             try
@@ -48,7 +48,7 @@ namespace MultiClientServer
                 while (true)
                     Console.WriteLine(Read.ReadLine());
             }
-            catch { } // Verbinding is kennelijk verbroken
+            catch { } // Connection is broken
         }
     }
 }
