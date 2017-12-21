@@ -1,0 +1,14 @@
+C:\Users\Tom\AppData\Local\Temporary Projects\MultiClientServer\bin\Debug\MultiClientServer.exe
+C:\Users\Tom\AppData\Local\Temporary Projects\MultiClientServer\bin\Debug\MultiClientServer.pdb
+C:\Users\Tom\AppData\Local\Temporary Projects\MultiClientServer\obj\x86\Debug\MultiClientServer.exe
+C:\Users\Tom\AppData\Local\Temporary Projects\MultiClientServer\obj\x86\Debug\MultiClientServer.pdb
+F:\Users\Tom\Dropbox\b3cc\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.exe
+F:\Users\Tom\Dropbox\b3cc\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.pdb
+F:\Users\Tom\Dropbox\b3cc\MultiClientServer\MultiClientServer\bin\Debug\MultiClientServer.exe
+F:\Users\Tom\Dropbox\b3cc\MultiClientServer\MultiClientServer\bin\Debug\MultiClientServer.pdb
+E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\bin\Debug\MultiClientServer.exe
+E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\bin\Debug\MultiClientServer.pdb
+E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.csprojResolveAssemblyReference.cache
+E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.csproj.CoreCompileInputs.cache
+E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.exe
+E:\University\Concurrency\Practicum\NetChange_P02\MultiClientServer\MultiClientServer\obj\x86\Debug\MultiClientServer.pdb
