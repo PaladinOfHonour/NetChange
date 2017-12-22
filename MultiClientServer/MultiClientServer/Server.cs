@@ -48,6 +48,8 @@ namespace MultiClientServer
                     if (!Program.neighbours.ContainsKey(clientPort))
                     {
                         Program.neighbours.Add(clientPort, new Connection(clientIn, clientOut));
+                        //lock (Program.tableLock) Program.routingTable.Add(new Row(clientPort, 1, clientPort));
+                        //TODO Recompile
                         //Console.WriteLine("SUCCES");
                     }
                 }

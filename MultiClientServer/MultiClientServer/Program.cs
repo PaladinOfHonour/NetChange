@@ -81,8 +81,8 @@ namespace MultiClientServer
                 Console.WriteLine("This connection doesn't exist yet!");
             else
             {
-                neighbours[clientPort].Write.WriteLine(port + ": " + parts[1]);
-                //Console.WriteLine("Messaged");
+                neighbours[clientPort].Write.WriteLine("MES " + port + ": " + parts[1]);
+                //MES is the header for the listener of goal client
             }
         }
 
@@ -95,7 +95,10 @@ namespace MultiClientServer
                 if (neighbours.ContainsKey(clientPort))
                     Console.WriteLine("This connection already exists!");
                 else
-                    neighbours.Add(clientPort, new Connection(clientPort));
+                {
+                    neighbours.Add(clientPort, new Connection(clientPort)); //TODO update routingtable
+                    lock (tableLock) routingTable.Add(new Row(clientPort, 1, clientPort));
+                }
             }
             // Establish the connction (as client)
         }

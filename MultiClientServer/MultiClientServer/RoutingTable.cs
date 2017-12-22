@@ -36,11 +36,20 @@ namespace MultiClientServer
     {
         private void BroadcastTable()
         {
-            lock (tableLock)
+            lock (tableLock)     //TODO: Lock or not? Neighbour
             {
+                for (int j = 0; j < neighbours.Count; j++)
+                {
+                    neighbours[j].Write.WriteLine("REC " + routingTable.Count);
+                }
+
                 for (int i = 0; i < routingTable.Count; i++)
                 {
-                    
+                    string s = routingTable[i].ToS();
+                    for (int j = 0; j < neighbours.Count; j++)
+                    {
+                        neighbours[j].Write.WriteLine(s);
+                    }
                 }
             }
         }

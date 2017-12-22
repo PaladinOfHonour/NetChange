@@ -55,9 +55,25 @@ namespace MultiClientServer
             try
             {
                 while (true)
-                    Console.WriteLine(Read.ReadLine());
+                {
+                    string[] input = Read.ReadLine().Split();
+                    string[] temp = input.Skip(1).ToArray();
+
+                    switch (input[0])
+                    {
+                        case "MES":
+                            Console.WriteLine(string.Join(" ", temp));
+                            break;
+                        case "REC":
+                            //HANDLE REC
+                            break;
+                        default:
+                            Console.WriteLine("Client made an invalid request");
+                            break;
+                    }
+                }
             }
-            catch { Console.WriteLine("CATCH EXCEPTION"); } // Connection is broken
+            catch { Console.WriteLine("READ EXCEPTION"); } // Connection is broken
         }
     }
 }
