@@ -5,57 +5,114 @@ using System.Text;
 
 namespace MultiClientServer
 {
-    class Program
+    partial class Program
     {
         static public int port;
-        static public object myLock;
+        static public object neighbourLock, tableLock;
 
-        static public Dictionary<int, Connection> routingTable = new Dictionary<int, Connection>();
+        static public Dictionary<int, Connection> neighbours;
+        static public List<Row> routingTable;
 
         static void Main(string[] args)
         {
-            myLock = new object();
+            neighbourLock = new object();
+            tableLock = new object();
 
             port = int.Parse(args[0]);
             new Server(port);
 
-            routingTable = new Dictionary<int, Connection>();
+            neighbours = new Dictionary<int, Connection>();
+            routingTable = new List<Row>() { new Row(port, 0, port) };
+
             for (int i = 1; i < args.Length; i++)
             {
                 var p = int.Parse(args[i]);
-                lock (myLock)
+                lock (neighbourLock)
                 {
-                    if (!routingTable.ContainsKey(p)) routingTable.Add(p, new Connection(p));
-                }
-            }
-
-
-            while (true)
-            {
-                string input = Console.ReadLine();
-                if (input.StartsWith("connect"))
-                {
-                    int clientPort = int.Parse(input.Split()[1]);
-                    if (routingTable.ContainsKey(clientPort))
-                        Console.WriteLine("This connection already exists!");
-                    else
+                    if (!neighbours.ContainsKey(p))
                     {
-                        // Establish the connction (as client)
-                        routingTable.Add(clientPort, new Connection(clientPort));
+                        if (p < port) neighbours.Add(p, new Connection(p));
                     }
                 }
-                else
+            }
+
+            for (int i = 0; i < neighbours.Count; i++)
+            {
+                lock (tableLock)
                 {
-                    // Send a message
-                    string[] parts = input.Split(new char[] { ' ' }, 2);
-                    int clientPort = int.Parse(parts[0]);
-                    if (!routingTable.ContainsKey(clientPort))
-                        Console.WriteLine("This connection doesn't exist yet!");
-                    else
-                        routingTable[clientPort].Write.WriteLine(port + ": " + parts[1]);
+                    routingTable.Add(new Row(neighbours.Keys.ToList()[i], 1, neighbours.Keys.ToList()[i]));
                 }
             }
-            
+
+            while (true) Input();
         }
+
+        private void Recompile()
+        {
+
+        }
+
+        #region INPUT
+
+        static private void Input()
+        {
+            string[] input = Console.ReadLine().Split();
+            string[] temp = input.Skip(1).ToArray();
+            string data = string.Join(" ", temp);
+
+            switch (input[0])
+            {
+                case "B": Message(data);    break;
+                case "C": Connect(data);    break;
+                case "D": Disconnect(data); break;
+                case "R": ShowTable(data);  break;
+                default:
+                    Console.WriteLine("That's not a valid option");
+                    break;
+            }
+        }
+
+        static private void Message(string input)
+        {
+            // Send a message
+            string[] parts = input.Split(new char[] { ' ' }, 2);
+            int clientPort = int.Parse(parts[0]);
+            if (!neighbours.ContainsKey(clientPort))
+                Console.WriteLine("This connection doesn't exist yet!");
+            else
+            {
+                neighbours[clientPort].Write.WriteLine(port + ": " + parts[1]);
+                //Console.WriteLine("Messaged");
+            }
+        }
+
+        static private void Connect(string input)
+        {
+            int clientPort = int.Parse(input.Split()[0]);
+
+            lock (neighbourLock)
+            {
+                if (neighbours.ContainsKey(clientPort))
+                    Console.WriteLine("This connection already exists!");
+                else
+                    neighbours.Add(clientPort, new Connection(clientPort));
+            }
+            // Establish the connction (as client)
+        }
+
+        static private void Disconnect(string input)
+        {
+
+        }
+
+        static private void ShowTable(string input)
+        {
+            for (int i = 0; i < routingTable.Count; i++)
+            {
+                Console.WriteLine(routingTable[i].ToS());
+            }
+        }
+
+        #endregion
     }
 }

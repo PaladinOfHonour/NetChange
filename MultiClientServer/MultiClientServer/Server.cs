@@ -23,9 +23,10 @@ namespace MultiClientServer
             // Start a seperate thread that accepts connections
             new Thread(() => AcceptLoop(server)).Start();
 
-
+            //HandleConnections(server);
         }
 
+        
         private void AcceptLoop(TcpListener handle)
         {
             while (true)
@@ -40,19 +41,52 @@ namespace MultiClientServer
 
                 Console.WriteLine("Client sets up connection: " + clientPort);
 
-                if (Program.routingTable.Any())
+                lock (Program.neighbourLock)
                 {
-                    bool var = !Program.routingTable.ContainsKey(clientPort);
-                    Console.WriteLine("  the key to add: " + clientPort + " already added? : " + var);
-                }
-                else Console.WriteLine("FAILURE");
-
-                lock (Program.myLock)
-                {
+                    //Console.WriteLine("We got into the lock");
                     // Put the new connection in the connectionlist
-                    if (!Program.routingTable.ContainsKey(clientPort)) Program.routingTable.Add(clientPort, new Connection(clientIn, clientOut));
+                    if (!Program.neighbours.ContainsKey(clientPort))
+                    {
+                        Program.neighbours.Add(clientPort, new Connection(clientIn, clientOut));
+                        //Console.WriteLine("SUCCES");
+                    }
+                }
+            }
+        } 
+
+        /*
+        private void HandleConnections(TcpListener handle)
+        {
+            while (true)
+            {
+                if (handle.Pending())
+                {
+                    TcpClient client = handle.AcceptTcpClient();
+                    new Thread(() => ClientConnection(client)).Start();
                 }
             }
         }
+
+        private void ClientConnection(TcpClient client)
+        {
+            StreamReader clientIn = new StreamReader(client.GetStream());
+            StreamWriter clientOut = new StreamWriter(client.GetStream());
+            clientOut.AutoFlush = true;
+
+            // The server doesn't know the port of the connection client, hence the client first sends a message with his own port as part of the protocol
+            int clientPort = int.Parse(clientIn.ReadLine().Split()[1]);
+
+            Console.WriteLine("Client sets up connection: " + clientPort);
+
+            lock (Program.myLock)
+            {
+                // Put the new connection in the connectionlist
+                if (!Program.routingTable.ContainsKey(clientPort))
+                {
+                    Program.routingTable.Add(clientPort, new Connection(clientIn, clientOut));
+                    Console.WriteLine("SUCCES");
+                }
+            }
+        }*/
     }
 }

@@ -17,7 +17,16 @@ namespace MultiClientServer
         // Connection has 2 constructors: this constructor gets used when we become a CLIENT to another SERVER
         public Connection(int port)
         {
-            TcpClient client = new TcpClient("localhost", port);
+            TcpClient client;
+            client = new TcpClient("localhost", port);
+            //Console.WriteLine(client.Connected);
+            while (!client.Connected)
+            {
+                Console.WriteLine("Sleep");
+                Thread.Sleep(1);
+                client.Connect("localhost", port);
+            }
+
             Read = new StreamReader(client.GetStream());
             Write = new StreamWriter(client.GetStream());
             Write.AutoFlush = true;
@@ -48,7 +57,7 @@ namespace MultiClientServer
                 while (true)
                     Console.WriteLine(Read.ReadLine());
             }
-            catch { } // Connection is broken
+            catch { Console.WriteLine("CATCH EXCEPTION"); } // Connection is broken
         }
     }
 }
