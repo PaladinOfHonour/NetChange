@@ -155,6 +155,11 @@ namespace MultiClientServer
                             routingTable[i] = new Row(routingTable[i].Data.Item1, routingTable.Count, routingTable[i].Data.Item3); //Set cost of disconnected conenctions to "quasi" infinite: N - 1
                         }
                     }
+
+                    if (Program.neighbours.Count < 1)
+                    {
+                        Program.routingTable = new List<Row>() { new Row(Program.port, 0, Program.port) };
+                    }
                 }
             }
             //Can be stolen

@@ -126,16 +126,16 @@ namespace MultiClientServer
                                             }
                                         }
                                     }
+                                }
+                            }
 
-                                    for (int i = 0; i < Program.routingTable.Count; i++)
-                                    {
-                                        if (Program.routingTable[i].Data.Item2 > (Program.routingTable.Count * 2))
-                                        {
-                                            Program.DuplicateDelete();
-                                            Program.BroadcastDelete();
-                                            change = false;
-                                        }
-                                    }
+                            for (int i = 0; i < Program.routingTable.Count; i++)
+                            {
+                                if (Program.routingTable[i].Data.Item2 > (Program.routingTable.Count + 5))
+                                {
+                                    Program.DuplicateDelete();
+                                    Program.BroadcastDelete();
+                                    change = false;
                                 }
                             }
 
@@ -157,6 +157,11 @@ namespace MultiClientServer
                                         {
                                             Program.routingTable[i] = new Row(Program.routingTable[i].Data.Item1, Program.routingTable.Count, Program.routingTable[i].Data.Item3); //Set cost of disconnected conenctions to "quasi" infinite: N - 1
                                         }
+                                    }
+
+                                    if (Program.neighbours.Count < 1)
+                                    {
+                                        Program.routingTable = new List<Row>() { new Row(Program.port, 0, Program.port) };
                                     }
                                 }
                             }
