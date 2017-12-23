@@ -14,10 +14,10 @@ namespace MultiClientServer
             data = new Tuple<int, int, int>(a, b, c);
         }
 
-        public void FromS(string s)
+        static public Row FromS(string s)
         {
             string[] temp = s.Split(' ');
-            data = new Tuple<int, int, int>(Int32.Parse(temp[0]), Int32.Parse(temp[1]), Int32.Parse(temp[2]));
+            return new Row(Int32.Parse(temp[0]), Int32.Parse(temp[1]), Int32.Parse(temp[2]));
         }
 
         public string ToS()
@@ -34,21 +34,22 @@ namespace MultiClientServer
 
     partial class Program
     {
-        private void BroadcastTable()
+        static public void BroadcastTable()
         {
-            lock (tableLock)     //TODO: Lock or not? Neighbour
+            lock (tableLock)     //TODO  Lock or not? Neighbour
             {
-                for (int j = 0; j < neighbours.Count; j++)
+                lock (neighbourLock)
                 {
-                    neighbours[j].Write.WriteLine("REC " + routingTable.Count);
-                }
-
-                for (int i = 0; i < routingTable.Count; i++)
-                {
-                    string s = routingTable[i].ToS();
-                    for (int j = 0; j < neighbours.Count; j++)
+                    foreach (KeyValuePair<int, Connection> kv in neighbours)
                     {
-                        neighbours[j].Write.WriteLine(s);
+                        kv.Value.Write.WriteLine("REC " + routingTable.Count + " " + port);
+                        // seperate by spaces
+                    }
+
+                    for (int i = 0; i < routingTable.Count; i++)
+                    {
+                        string s = routingTable[i].ToS();
+                        foreach (KeyValuePair<int, Connection> kv in neighbours) kv.Value.Write.WriteLine(s);
                     }
                 }
             }

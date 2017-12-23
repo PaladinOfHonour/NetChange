@@ -18,7 +18,15 @@ namespace MultiClientServer
         public Connection(int port)
         {
             TcpClient client;
-            client = new TcpClient("localhost", port);
+
+            attemptConnection:
+            try { client = new TcpClient("localhost", port); }
+            catch
+            {
+                Thread.Sleep(5);
+                goto attemptConnection;
+            }
+
             //Console.WriteLine(client.Connected);
             while (!client.Connected)
             {
@@ -58,6 +66,7 @@ namespace MultiClientServer
                 {
                     string[] input = Read.ReadLine().Split();
                     string[] temp = input.Skip(1).ToArray();
+                    Row tuple;
 
                     switch (input[0])
                     {
@@ -65,7 +74,49 @@ namespace MultiClientServer
                             Console.WriteLine(string.Join(" ", temp));
                             break;
                         case "REC":
-                            //HANDLE REC
+                            bool change = false;
+                            for (int i = 0; i < Int32.Parse(temp[0]); i++)
+                            {
+                                tuple = Row.FromS(Read.ReadLine());
+                                lock (Program.tableLock) { 
+                                    lock (Program.neighbourLock)
+                                    {
+                                        int newDest = tuple.Data.Item1;
+                                        Row old;
+                                        bool Faster = true;                     //bool fix
+
+                                        for (int j = 0; j < Program.routingTable.Count; j++)
+                                        {
+                                            old = Program.routingTable[j];
+                                            //Check for an existing connection, if so then check if the new entry would be faster
+                                            if (old.Data.Item1 == newDest)
+                                            {
+
+                                                if (tuple.Data.Item2 + 1 < old.Data.Item2)
+                                                {
+                                                    Program.routingTable.Remove(Program.routingTable[j]);
+                                                    j--; // To not skip an element
+                                                    Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1]))); //temp[1] is the port of the server this thread belongs to
+                                                    change = true;
+                                                    Faster = false;
+                                                }
+                                                else
+                                                {
+
+                                                    Faster = false; // boolfix
+                                                }
+                                            }
+                                        }
+                                        if (Faster)
+                                        {
+                                            Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1])));
+                                            change = true;
+                                        }
+                                    }
+
+                                }
+                            }
+                            if (change) Program.BroadcastTable();
                             break;
                         default:
                             Console.WriteLine("Client made an invalid request");

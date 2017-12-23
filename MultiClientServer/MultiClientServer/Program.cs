@@ -23,33 +23,31 @@ namespace MultiClientServer
 
             neighbours = new Dictionary<int, Connection>();
             routingTable = new List<Row>() { new Row(port, 0, port) };
-
-            for (int i = 1; i < args.Length; i++)
+            lock (tableLock)
             {
-                var p = int.Parse(args[i]);
                 lock (neighbourLock)
                 {
-                    if (!neighbours.ContainsKey(p))
+                    for (int i = 1; i < args.Length; i++)
                     {
-                        if (p < port) neighbours.Add(p, new Connection(p));
+                        var p = int.Parse(args[i]);
+                        {
+                            if (!neighbours.ContainsKey(p))
+                            {
+                                if (p < port) neighbours.Add(p, new Connection(p));
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < neighbours.Count; i++)
+                    {
+                            routingTable.Add(new Row(neighbours.Keys.ToList()[i], 1, neighbours.Keys.ToList()[i]));
                     }
                 }
             }
 
-            for (int i = 0; i < neighbours.Count; i++)
-            {
-                lock (tableLock)
-                {
-                    routingTable.Add(new Row(neighbours.Keys.ToList()[i], 1, neighbours.Keys.ToList()[i]));
-                }
-            }
+            BroadcastTable();
 
             while (true) Input();
-        }
-
-        private void Recompile()
-        {
-
         }
 
         #region INPUT
