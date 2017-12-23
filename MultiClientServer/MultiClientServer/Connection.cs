@@ -86,7 +86,7 @@ namespace MultiClientServer
                                         int newDest = tuple.Data.Item1;
                                         Row old;
                                         bool Faster = true;
-                                        Console.WriteLine("broadcast from: " + temp[1]);
+                                        //Console.WriteLine("broadcast from: " + temp[1]);
 
                                         if (Program.neighbours.ContainsKey(newDest) || newDest == Program.port) ; //TODO faster?????
                                         else
@@ -158,7 +158,7 @@ namespace MultiClientServer
                                             Program.routingTable[i] = new Row(Program.routingTable[i].Data.Item1, Program.routingTable.Count, Program.routingTable[i].Data.Item3); //Set cost of disconnected conenctions to "quasi" infinite: N - 1
                                         }
                                     }
-
+                                    
                                     if (Program.neighbours.Count < 1)
                                     {
                                         Program.routingTable = new List<Row>() { new Row(Program.port, 0, Program.port) };
