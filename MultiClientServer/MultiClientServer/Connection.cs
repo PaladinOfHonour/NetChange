@@ -27,14 +27,6 @@ namespace MultiClientServer
                 goto attemptConnection;
             }
 
-            //Console.WriteLine(client.Connected);
-            while (!client.Connected)
-            {
-                Console.WriteLine("Sleep");
-                Thread.Sleep(1);
-                client.Connect("localhost", port);
-            }
-
             Read = new StreamReader(client.GetStream());
             Write = new StreamWriter(client.GetStream());
             Write.AutoFlush = true;
@@ -83,49 +75,97 @@ namespace MultiClientServer
                             break;
                         case "REC":
                             bool change = false;
-                            for (int i = 0; i < Int32.Parse(temp[0]); i++)
+
+                            lock (Program.tableLock)
                             {
-                                tuple = Row.FromS(Read.ReadLine());
-                                lock (Program.tableLock) { 
-                                    lock (Program.neighbourLock)
+                                lock (Program.neighbourLock)
+                                {
+                                    for (int i = 0; i < Int32.Parse(temp[0]); i++)
                                     {
+                                        tuple = Row.FromS(Read.ReadLine());
                                         int newDest = tuple.Data.Item1;
                                         Row old;
                                         bool Faster = true;
+                                        Console.WriteLine("broadcast from: " + temp[1]);
 
-                                        for (int j = 0; j < Program.routingTable.Count; j++)
+                                        if (Program.neighbours.ContainsKey(newDest) || newDest == Program.port) ; //TODO faster?????
+                                        else
                                         {
-                                            old = Program.routingTable[j];
-                                            //Check for an existing connection, if so then check if the new entry would be faster
-                                            if (old.Data.Item1 == newDest)
+                                            for (int j = 0; j < Program.routingTable.Count; j++)
                                             {
-
-                                                if (tuple.Data.Item2 + 1 < old.Data.Item2)
+                                                old = Program.routingTable[j];
+                                                //Check for an existing connection, if so then check if the new entry would be faster
+                                                if (old.Data.Item1 == newDest)
                                                 {
-                                                    Program.routingTable.Remove(Program.routingTable[j]);
-                                                    j--; // To not skip an element
-                                                    Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1]))); //temp[1] is the port of the server this thread belongs to
-                                                    change = true;
-                                                    Console.WriteLine("Afstand naar {0} is nu {1} via {2}", newDest, tuple.Data.Item2 + 1, temp[1]);
-                                                    Faster = false;
-                                                }
-                                                else
-                                                {
-
-                                                    Faster = false; 
+                                                    //If route of neighbour is more than one slower: Broadcast own routingtable
+                                                    //TODO possible error point
+                                                    if (tuple.Data.Item2 - 1 > old.Data.Item2)
+                                                    {
+                                                        change = true;
+                                                        Console.WriteLine("Reverse" + Program.port);
+                                                    }
+                                                    if (tuple.Data.Item2 + 1 < old.Data.Item2 || (old.Data.Item3 == Int32.Parse(temp[1]) && tuple.Data.Item2 + 1 > old.Data.Item2))
+                                                    {
+                                                        Program.routingTable.Remove(Program.routingTable[j]);
+                                                        j--; // To not skip an element
+                                                        Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1]))); //temp[1] is the port of the server this thread belongs to
+                                                        change = true;
+                                                        Console.WriteLine("Afstand naar {0} is nu {1} via {2}", newDest, tuple.Data.Item2 + 1, temp[1]);
+                                                        Faster = false;
+                                                    }
+                                                    else
+                                                    {
+                                                        Faster = false;
+                                                    }
                                                 }
                                             }
-                                        }
-                                        if (Faster)
-                                        {
-                                            Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1])));
-                                            change = true;
+                                            if (Faster)
+                                            {
+                                                Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1])));
+                                                change = true;
+                                            }
                                         }
                                     }
 
+                                    for (int i = 0; i < Program.routingTable.Count; i++)
+                                    {
+                                        if (Program.routingTable[i].Data.Item2 > (Program.routingTable.Count * 2))
+                                        {
+                                            Program.DuplicateDelete();
+                                            Program.BroadcastDelete();
+                                            change = false;
+                                        }
+                                    }
                                 }
                             }
+
                             if (change) Program.BroadcastTable();
+                            else Program.DuplicateDelete();
+                            break;
+                        case "DIS":
+                            lock (Program.tableLock)
+                            {
+                                lock (Program.neighbourLock)
+                                {
+                                    //Delete connection
+                                    int initiator = Int32.Parse(temp[0]);
+                                    Program.neighbours.Remove(initiator);
+
+                                    for (int i = 0; i < Program.routingTable.Count; i++)
+                                    {
+                                        if (Program.routingTable[i].Data.Item3 == initiator)
+                                        {
+                                            Program.routingTable[i] = new Row(Program.routingTable[i].Data.Item1, Program.routingTable.Count, Program.routingTable[i].Data.Item3); //Set cost of disconnected conenctions to "quasi" infinite: N - 1
+                                        }
+                                    }
+                                }
+                            }
+                            Program.BroadcastTable();
+                            break;
+                        //TODO don't use duplicate for this
+                        //TODO Implement server side receive intent of disconnect*/
+                        case "DEL":
+                            Program.DuplicateDelete();
                             break;
                         default:
                             Console.WriteLine("Client made an invalid request");

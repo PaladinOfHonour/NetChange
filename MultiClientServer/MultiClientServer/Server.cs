@@ -31,24 +31,30 @@ namespace MultiClientServer
         {
             while (true)
             {
-                TcpClient client = handle.AcceptTcpClient();
-                StreamReader clientIn = new StreamReader(client.GetStream());
-                StreamWriter clientOut = new StreamWriter(client.GetStream());
-                clientOut.AutoFlush = true;
-
-                // The server doesn't know the port of the connection client, hence the client first sends a message with his own port as part of the protocol
-                int clientPort = int.Parse(clientIn.ReadLine().Split()[1]);
-
-                Console.WriteLine("Client sets up connection: " + clientPort);
-
-                lock (Program.tableLock)
+                if (Program.init)
                 {
-                    lock (Program.neighbourLock)
+                    TcpClient client = handle.AcceptTcpClient();
+                    StreamReader clientIn = new StreamReader(client.GetStream());
+                    StreamWriter clientOut = new StreamWriter(client.GetStream());
+                    clientOut.AutoFlush = true;
+                    // The server doesn't know the port of the connection client, hence the client first sends a message with his own port as part of the protocol
+                    int clientPort = int.Parse(clientIn.ReadLine().Split()[1]);
+
+                    Console.WriteLine("Client sets up connection: " + clientPort);
+
+                    lock (Program.tableLock)
                     {
-                        // Put the new connection in the connectionlist
-                        Program.neighbours.Add(clientPort, new Connection(clientIn, clientOut));
-                        Program.routingTable.Add(new Row(clientPort, 1, clientPort));
-                        Program.BroadcastTable();
+                        lock (Program.neighbourLock)
+                        {
+                            for (int i = 0; i < Program.routingTable.Count; i++)
+                            {
+                                if (Program.routingTable[i].Data.Item1 == clientPort) Program.routingTable.Remove(Program.routingTable[i]);
+                            }
+                            // Put the new connection in the connectionlist
+                            Program.neighbours.Add(clientPort, new Connection(clientIn, clientOut));
+                            Program.routingTable.Add(new Row(clientPort, 1, clientPort));
+                            Program.BroadcastTable();
+                        }
                     }
                 }
             }

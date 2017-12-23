@@ -54,5 +54,42 @@ namespace MultiClientServer
                 }
             }
         }
+
+        static public void BroadcastDelete()
+        {
+            lock (tableLock)
+            {
+                lock (neighbourLock)
+                {
+                    foreach (KeyValuePair<int, Connection> kv in neighbours)
+                    {
+                        kv.Value.Write.WriteLine("DEL " + port);
+                        // seperate by spaces
+                    }
+                }
+            }
+        }
+
+        static public void DuplicateDelete()
+        {
+            lock (tableLock)
+            {
+                lock (neighbourLock)
+                {
+                    bool removed = false;
+                    for (int i = 0; i < Program.routingTable.Count; i++)
+                    {
+                        if (Program.routingTable[i].Data.Item2 >= Program.routingTable.Count)
+                        {
+                            Program.routingTable.Remove(Program.routingTable[i]);
+                            i--;
+                            removed = true;
+                            //removed = true;
+                        }
+                    }
+                    if (removed) BroadcastTable();
+                }
+            }
+        }
     }
 }
