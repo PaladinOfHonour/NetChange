@@ -71,7 +71,15 @@ namespace MultiClientServer
                     switch (input[0])
                     {
                         case "MES":
-                            Console.WriteLine(string.Join(" ", temp));
+                            //check if destination reached
+                            if (Int32.Parse(temp[0]) == Program.port)
+                            {
+                                temp = temp.Skip(1).ToArray(); // remove destination from final message
+                                Console.WriteLine(string.Join(" ", temp));
+                                break;
+                            }
+                            //if not pass message to next node                            
+                            Program.Message(string.Join(" ", temp));
                             break;
                         case "REC":
                             bool change = false;
@@ -83,7 +91,7 @@ namespace MultiClientServer
                                     {
                                         int newDest = tuple.Data.Item1;
                                         Row old;
-                                        bool Faster = true;                     //bool fix
+                                        bool Faster = true;
 
                                         for (int j = 0; j < Program.routingTable.Count; j++)
                                         {
@@ -98,12 +106,13 @@ namespace MultiClientServer
                                                     j--; // To not skip an element
                                                     Program.routingTable.Add(new Row(newDest, tuple.Data.Item2 + 1, Int32.Parse(temp[1]))); //temp[1] is the port of the server this thread belongs to
                                                     change = true;
+                                                    Console.WriteLine("Afstand naar {0} is nu {1} via {2}", newDest, tuple.Data.Item2 + 1, temp[1]);
                                                     Faster = false;
                                                 }
                                                 else
                                                 {
 
-                                                    Faster = false; // boolfix
+                                                    Faster = false; 
                                                 }
                                             }
                                         }

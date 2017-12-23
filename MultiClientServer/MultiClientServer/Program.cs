@@ -70,40 +70,56 @@ namespace MultiClientServer
             }
         }
 
-        static private void Message(string input)
+        static public void Message(string input)
         {
             // Send a message
             string[] parts = input.Split(new char[] { ' ' }, 2);
             int clientPort = int.Parse(parts[0]);
-            if (!neighbours.ContainsKey(clientPort))
-                Console.WriteLine("This connection doesn't exist yet!");
-            else
+
+            lock (tableLock)
             {
-                neighbours[clientPort].Write.WriteLine("MES " + port + ": " + parts[1]);
-                //MES is the header for the listener of goal client
+                lock (neighbourLock)
+                {
+                    for (int i = 0; i < routingTable.Count; i++)
+                    {
+                        if (routingTable[i].Data.Item1 == clientPort)
+                        {
+                            // write message to client
+                            Console.WriteLine("Bericht voor {0} doorgestuurd naar {1}", clientPort, routingTable[i].Data.Item3);
+                            neighbours[routingTable[i].Data.Item3].Write.WriteLine("MES " + clientPort + " " +  parts[1]);
+                            //MES is the header for the listener of goal client
+                            //seperated by spaces
+                            return;
+                        }
+                    }
+                    Console.WriteLine("Poort {0} is niet bekend", clientPort);
+                }
             }
         }
+        
 
         static private void Connect(string input)
         {
             int clientPort = int.Parse(input.Split()[0]);
 
-            lock (neighbourLock)
+            lock (tableLock)
             {
-                if (neighbours.ContainsKey(clientPort))
-                    Console.WriteLine("This connection already exists!");
-                else
+                lock (neighbourLock)
                 {
                     neighbours.Add(clientPort, new Connection(clientPort)); //TODO update routingtable
-                    lock (tableLock) routingTable.Add(new Row(clientPort, 1, clientPort));
+                    routingTable.Add(new Row(clientPort, 1, clientPort));
+                    BroadcastTable();
                 }
             }
             // Establish the connction (as client)
         }
 
         static private void Disconnect(string input)
-        {
-
+        { /*
+            when input: esc
+                return end(proces(n))
+            
+            print: "Proces ended! :)" */
         }
 
         static private void ShowTable(string input)
